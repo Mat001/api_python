@@ -1,0 +1,17 @@
+#Virtual Python Environments
+/venv
+
+#Integrated Development Environments
+/.idea
+.idea/
+
+# Logs
+logs
+*.log
+
+__pycache__/
+dist/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
