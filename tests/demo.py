@@ -1,12 +1,13 @@
-# use this site to test against: https://reqres.in/
-
-# TODO implement POLLING - for requests/responses that take longer - however polling is already included in timeout param in requests no?
-
 import requests
 import json
 import unittest
+from requests.auth import HTTPBasicAuth
+from base64 import b64encode
 
-class ApiTests(unittest.TestCase):
+# TODO implement POLLING - for requests/responses that take longer - however polling is already included in timeout param in requests no?
+
+
+class DemoApiTests(unittest.TestCase):
 
     def setUp(self):
         self.BASE_URL = 'https://reqres.in'
@@ -134,7 +135,7 @@ class ApiTests(unittest.TestCase):
     def test_05_delete(self):
         print('# DELETE')
 
-        remove = requests.delete(self.BASE_URL + '/api/users/2', timeout=(10, 10))
+        remove = requests.delete(self.BASE_URL + '/api/users/2', timeout=(10, 20))
         print(remove.status_code)
 
         assert remove.status_code == 204
@@ -145,7 +146,10 @@ class ApiTests(unittest.TestCase):
     # AUTHENTICATION - BASIC POST CREDENTIALS
     ##############################################
     def test_06_auth1(self):
-        """Expected response:
+        """
+        Send email and password as API post request to authenticate.
+
+        Expected response:
         {
         "token": "QpwL5tke4Pnpja7X"
         }
@@ -180,7 +184,7 @@ class ApiTests(unittest.TestCase):
 
         print('# POST - AUTHENTICATION/ SCRAPING TOKEN')
 
-        # create a session object, we need to persist data over two pages(?)
+        # create a session object, we need to persist data over two requests
         session = requests.session()
 
         # get login page text
@@ -220,27 +224,62 @@ class ApiTests(unittest.TestCase):
 
 
     ##############################################
-    # AUTHENTICATION - USING REQUESTS'HTTPBasicAuth
+    # AUTHENTICATION - CLIENT SIDE - BASIC ACCESS AUTHENTICATION with manual base64 encoding
     ##############################################
+    """Username and password are combined with a colon.
+        Resulting string is base64 encoded.
+        https://en.wikipedia.org/wiki/Basic_access_authentication"""
+    def test_08_basic_auth_client(self):
+        """example of accessing Jenkins"""
+        # auth_token = b''    # fill in - need to push bytes (or bytearray) to the base64.b64encode() method
+        # username = b''      # fill in - need to push bytes (or bytearray) to the base64.b64encode() method
+        # BASE_URL = ''       # fill in
+        #
+        # session = requests.session()
+        # # 1. encode
+        # s = username + b':' + auth_token
+        # str = b64encode(s).decode('ascii')
+        # header = {"Authorization": "Basic" + str}
+        # # 2. add header
+        # r = session.get(BASE_URL + '', headers=header)      # fill in endpoint
+        # print(r.text)
+        pass
 
+    ##############################################
+    # AUTHENTICATION - CLIENT SIDE BASIC AUTHENTICATION USING REQUESTS' HTTPBasicAuth module
+    ##############################################
+    def test_09_basic_auth_client_httpbasicauth(self):
+        # """Basic auth on client side Using requests HTTPBasicAuth module"""
+        # auth_token = ''     # fill in
+        # username = ''       # fill in
+        # BASE_URL = ''       # fill in
+        #
+        # session = requests.session()
+        # r = session.get(BASE_URL + '', auth=HTTPBasicAuth(username, auth_token))    # fill in endpoint
+        # print(r.json())
+        pass
 
     ##############################################
     # AUTHENTICATION - OAuth1
     ##############################################
-
+    def test_10_oauth1(self):
+        """TODO"""
+        pass
 
     ##############################################
     # DELAYED RESPONSE
     ##############################################
-    def test_08_delayed_response(self):
+    def test_11_delayed_response(self):
         print('# DELAYED RESPONSE')
 
         params = {'delay': 3}
-        r = requests.get(self.BASE_URL + '/api/users', params=params, timeout=(10, 10))
-        print(r.status_code)
-        print(r.json())
-        assert r.status_code == 200
-
+        try:
+            r = requests.get(self.BASE_URL + '/api/users', params=params, timeout=(20, 20))
+            print(r.status_code)
+            print(r.json())
+            assert r.status_code == 200
+        except requests.exceptions.ReadTimeout as e:
+            print('Read timed out.', e)
 
     def tearDown(self):
         print('----------------------------------------------------')
@@ -248,18 +287,3 @@ class ApiTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(warnings='ignore')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
