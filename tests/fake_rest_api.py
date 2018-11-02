@@ -18,7 +18,6 @@ class ApiTests(unittest.TestCase):
         result = r.json()
 
         self.assertEqual(r.status_code, 200)
-        print(result)
 
         # using generator for memory efficiency because list of items can be large
         gen = (activity for activity in result)
@@ -97,23 +96,6 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(result['ID'], 1)
         self.assertEqual(result['Title'], 'Activity 1')
         self.assertFalse(result['Completed'])
-
-    def test_04_e2e(self):
-        """TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO"""
-        # add new activity
-
-        # confirm new activity has been added - use dict method popitem() to get the last added dict element
-
-        # update one activity
-
-        # delete one activity
-
-        # go to another API (clean air?)
-
-        # use some param from previous API (ID, title?) to add it to new API
-
-        # assert new element has been added
-        pass
 
     def tearDown(self):
         print('----------------------------------------------------')
