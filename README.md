@@ -6,11 +6,11 @@ Demonstration of API calls/tests on a test website and on real Salesforce API
 
 1. ###### Prerequisites
     
-    install pipenv
+    `install pipenv`
 
-2. ###### Run
+2. ###### Run tests
     
-    python -W ignore -m unittest discover -v
+    `python -W ignore -m unittest discover -v`
 
 Things to improve:
 - to use a better API with a database to be able to test patching, updating and deleting
