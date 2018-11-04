@@ -41,8 +41,8 @@ import json
 class Salesforce(unittest.TestCase):
 
     def setUp(self):
-        client_secret = 'to_be_passed'
-        password = 'to_be_passed'
+        client_secret = '2074911939472552033'
+        password = 'hellosalesf6666RnCKaf9p4xbAryuBdXrJvmjl'
 
         credentials = {
             'grant_type': 'password',
@@ -62,7 +62,7 @@ class Salesforce(unittest.TestCase):
         self.assertEqual(200, auth.status_code)
 
         # need session here to store access_token for each subsequent request (or cookie)
-        self.session = requests.session()
+        self.session = requests.Session()
         self.header = {
             'Authorization': resp['token_type'] + ' ' + resp['access_token'],
             'content-type': 'application/json'
@@ -75,6 +75,7 @@ class Salesforce(unittest.TestCase):
 
         session = self.session
         header = self.header
+        instance_url = self.instance_url
 
         payload = {
             "Name": "new business 11",
@@ -86,7 +87,7 @@ class Salesforce(unittest.TestCase):
         # Write a POST call passing the JSON Payload as a request
         # needed to use json.payload instead of data=payload
         post_opport = self.session.post(
-            self.instance_url + '/services/data/v43.0/sobjects/Opportunity/',
+            instance_url + '/services/data/v43.0/sobjects/Opportunity/',
             data=json.dumps(payload),
             headers=header,
             timeout=(10, 10))
@@ -101,7 +102,7 @@ class Salesforce(unittest.TestCase):
         # Validate that the opportunity has been created:
         id = opport_response['id']
         get_created_opport = session.get(
-            self.instance_url + '/services/data/v43.0/sobjects/Opportunity/' + id,
+            instance_url + '/services/data/v43.0/sobjects/Opportunity/' + id,
             headers=header,
             timeout=(10, 10))
 
@@ -118,6 +119,7 @@ class Salesforce(unittest.TestCase):
 
         session = self.session
         header = self.header
+        instance_url = self.instance_url
 
         payload = {
             "Name": "new business 22",
@@ -127,7 +129,7 @@ class Salesforce(unittest.TestCase):
         }
 
         post_opport = session.post(
-            self.instance_url + '/services/data/v43.0/sobjects/Opportunity/',
+            instance_url + '/services/data/v43.0/sobjects/Opportunity/',
             data=json.dumps(payload),
             headers=header,
             timeout=(10, 10))
@@ -142,7 +144,7 @@ class Salesforce(unittest.TestCase):
         # Validate that the opportunity has been created
         id = opport_resp['id']
         get_created_opport = session.get(
-            self.instance_url + '/services/data/v43.0/sobjects/Opportunity/' + id,
+            instance_url + '/services/data/v43.0/sobjects/Opportunity/' + id,
             headers=header,
             timeout=(10, 10))
 
@@ -158,6 +160,7 @@ class Salesforce(unittest.TestCase):
 
         session = self.session
         header = self.header
+        instance_url = self.instance_url
 
         payload = {
             "Name": "new business 33",
@@ -167,7 +170,7 @@ class Salesforce(unittest.TestCase):
         }
 
         post_opport = session.post(
-            self.instance_url + '/services/data/v43.0/sobjects/Opportunity/',
+            instance_url + '/services/data/v43.0/sobjects/Opportunity/',
             data=json.dumps(payload),
             headers=header,
             timeout=(10, 10))
@@ -182,7 +185,7 @@ class Salesforce(unittest.TestCase):
         # Validate that the opportunity has been created:
         id = opport_resp['id']
         get_created_opport = session.get(
-            self.instance_url + '/services/data/v43.0/sobjects/Opportunity/' + id,
+            instance_url + '/services/data/v43.0/sobjects/Opportunity/' + id,
             headers=header,
             timeout=(10, 10))
 
