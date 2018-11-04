@@ -41,26 +41,25 @@ import json
 class Salesforce(unittest.TestCase):
 
     def setUp(self):
-        self.BASE_URL = 'https://ap1.salesforce.com'
-
-        client_secret = 'to_be_inserted'
-        password = 'to_be_inserted'
+        client_secret = 'to_be_passed'
+        password = 'to_be_passed'
 
         credentials = {
             'grant_type': 'password',
-            'client_id': '3MVG9zlTNB8o8BA28oKeNIRrpUToEFXXhdqfDXdKbeCiQA6.cWLPXnM845we_Hpuef_9bOoFHA1aRRFqRzuLx',
+            'client_id': '3MVG9zlTNB8o8BA28oKeNIRrpUToEFXXhdqfDXdKbeCiQA6.cWLPXnM845we_Hp'
+                         'uef_9bOoFHA1aRRFqRzuLx',
             'client_secret': client_secret,
             'username': 'mpx2@mpx2.com',
             'password': password
         }
 
-        auth = requests.post(self.BASE_URL + '/services/oauth2/token',
-                             data=credentials,
-                             timeout=(10, 10))
+        # auth url needs to be either 'ap1.salesforce.com' or instance_url
+        auth_url = 'https://ap1.salesforce.com/services/oauth2/token'
 
+        auth = requests.post(auth_url, data=credentials, timeout=(10, 10))
         resp = auth.json()
-        print('AUTH: ', resp)
-        self.assertEqual(auth.status_code, 200)
+
+        self.assertEqual(200, auth.status_code)
 
         # need session here to store access_token for each subsequent request (or cookie)
         self.session = requests.session()
@@ -69,8 +68,10 @@ class Salesforce(unittest.TestCase):
             'content-type': 'application/json'
         }
 
+        # provide instance_url (used in the session)
+        self.instance_url = resp['instance_url']
+
     def test_01_qualification_opportunity(self):
-        print("Salesforce")
 
         session = self.session
         header = self.header
@@ -84,42 +85,36 @@ class Salesforce(unittest.TestCase):
 
         # Write a POST call passing the JSON Payload as a request
         # needed to use json.payload instead of data=payload
-        post_opport = session.post(
-            'https://ap1.salesforce.com/services/data/v43.0/sobjects/Opportunity/',
+        post_opport = self.session.post(
+            self.instance_url + '/services/data/v43.0/sobjects/Opportunity/',
             data=json.dumps(payload),
             headers=header,
             timeout=(10, 10))
 
         opport_response = post_opport.json()
-        print('OPP: ', opport_response)
 
         # Assert the status code of 201 received
-        self.assertEqual(post_opport.status_code, 201)
+        self.assertEqual(201, post_opport.status_code)
         self.assertIsNotNone(opport_response['id'])
         self.assertTrue(opport_response['success'])
 
         # Validate that the opportunity has been created:
-        # GET the Opportunity created
-        # Assert Status code
         id = opport_response['id']
         get_created_opport = session.get(
-            'https://ap1.salesforce.com/services/data/v43.0/sobjects/Opportunity/' + id,
+            self.instance_url + '/services/data/v43.0/sobjects/Opportunity/' + id,
             headers=header,
             timeout=(10, 10))
 
-        opp_resp = get_created_opport.json()
-        print(opp_resp)
+        opport_resp = get_created_opport.json()
 
-        self.assertEqual(get_created_opport.status_code, 200)
-        self.assertEqual(opp_resp['Id'], id)
-        self.assertEqual(opp_resp['Name'], 'new business 11')
-        self.assertEqual(opp_resp['attributes']['type'], 'Opportunity')
-        self.assertEqual(opp_resp['StageName'],
+        self.assertEqual(200, get_created_opport.status_code)
+        self.assertEqual(opport_resp['Id'], id)
+        self.assertEqual(opport_resp['Name'], 'new business 11')
+        self.assertEqual(opport_resp['attributes']['type'], 'Opportunity')
+        self.assertEqual(opport_resp['StageName'],
                          'Qualification / Meeting Scheduled/ Proposal')
 
     def test_02_price_quote_opportunity(self):
-        # Parse the JSON and Assert the opportunities created for each of them
-        # for each stage and opportunity type and account.
 
         session = self.session
         header = self.header
@@ -132,39 +127,34 @@ class Salesforce(unittest.TestCase):
         }
 
         post_opport = session.post(
-            self.BASE_URL + '/services/data/v43.0/sobjects/Opportunity/',
+            self.instance_url + '/services/data/v43.0/sobjects/Opportunity/',
             data=json.dumps(payload),
             headers=header,
             timeout=(10, 10))
 
-        opport_response = post_opport.json()
-        # print(opport_response)
+        opport_resp = post_opport.json()
 
         # Assert the status code of 201 received
-        self.assertEqual(post_opport.status_code, 201)
-        self.assertIsNotNone(opport_response['id'])
-        self.assertTrue(opport_response['success'])
+        self.assertEqual(201, post_opport.status_code)
+        self.assertIsNotNone(opport_resp['id'])
+        self.assertTrue(opport_resp['success'])
 
-        # Validate that the opportunity has been created:
-        # GET the Opportunity created, Assert Status code
-        id = opport_response['id']
+        # Validate that the opportunity has been created
+        id = opport_resp['id']
         get_created_opport = session.get(
-            'https://ap1.salesforce.com/services/data/v43.0/sobjects/Opportunity/' + id,
+            self.instance_url + '/services/data/v43.0/sobjects/Opportunity/' + id,
             headers=header,
             timeout=(10, 10))
 
         opp_resp = get_created_opport.json()
-        print(opp_resp)
 
-        self.assertEqual(get_created_opport.status_code, 200)
+        self.assertEqual(200, get_created_opport.status_code)
         self.assertEqual(opp_resp['Id'], id)
-        self.assertEqual(opp_resp['Name'], 'new business 22')
-        self.assertEqual(opp_resp['attributes']['type'], 'Opportunity')
-        self.assertEqual(opp_resp['StageName'], 'Price Quote / Negotiation')
+        self.assertEqual('new business 22', opp_resp['Name'])
+        self.assertEqual('Opportunity', opp_resp['attributes']['type'])
+        self.assertEqual('Price Quote / Negotiation', opp_resp['StageName'])
 
     def test_03_review_opportunity(self):
-        # Parse the JSON and Assert the opportunities created for each of them
-        # for each stage and opportunity type and account
 
         session = self.session
         header = self.header
@@ -177,40 +167,36 @@ class Salesforce(unittest.TestCase):
         }
 
         post_opport = session.post(
-            self.BASE_URL + '/services/data/v43.0/sobjects/Opportunity/',
+            self.instance_url + '/services/data/v43.0/sobjects/Opportunity/',
             data=json.dumps(payload),
             headers=header,
             timeout=(10, 10))
 
-        opport_response = post_opport.json()
-        # print(opport_response)
+        opport_resp = post_opport.json()
 
         # Assert the status code of 201 received
-        self.assertEqual(post_opport.status_code, 201)
-        self.assertIsNotNone(opport_response['id'])
-        self.assertTrue(opport_response['success'])
+        self.assertEqual(201, post_opport.status_code)
+        self.assertIsNotNone(opport_resp['id'])
+        self.assertTrue(opport_resp['success'])
 
         # Validate that the opportunity has been created:
-        # GET the Opportunity created
-        # Assert Status code
-        id = opport_response['id']
+        id = opport_resp['id']
         get_created_opport = session.get(
-            'https://ap1.salesforce.com/services/data/v43.0/sobjects/Opportunity/' + id,
+            self.instance_url + '/services/data/v43.0/sobjects/Opportunity/' + id,
             headers=header,
             timeout=(10, 10))
 
         opp_resp = get_created_opport.json()
-        print(opp_resp)
 
-        self.assertEqual(get_created_opport.status_code, 200)
+        self.assertEqual(200, get_created_opport.status_code)
         self.assertEqual(opp_resp['Id'], id)
-        self.assertEqual(opp_resp['Name'], 'new business 33')
-        self.assertEqual(opp_resp['attributes']['type'], 'Opportunity')
-        self.assertEqual(opp_resp['StageName'], 'Review')
+        self.assertEqual('new business 33', opp_resp['Name'])
+        self.assertEqual('Opportunity', opp_resp['attributes']['type'])
+        self.assertEqual('Review', opp_resp['StageName'])
 
-    def tearDown(self):
-        print('----------------------------------------------------')
-
+    def shortDescription(self):
+        """Utility function to disable displaying docstring in verbose output."""
+        return None
 
 if __name__ == '__main__':
     unittest.main(warnings='ignore')
