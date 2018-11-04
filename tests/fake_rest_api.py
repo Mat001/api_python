@@ -6,12 +6,12 @@ import unittest
 class ApiTests(unittest.TestCase):
 
     def setUp(self):
-        # no authentication required, API is fully open to public
+        """no authentication required, API is fully open to public"""
+
         self.BASE_URL = 'https://fakerestapi.azurewebsites.net'
 
     def test_01_get_activities(self):
         """Each activity should have the following keys: ID, Title, DueDate, Completed"""
-        print("GET - test_01_get_activities")
 
         base_url = self.BASE_URL
         r = requests.get(base_url + '/api/Activities', timeout=(10, 10))
@@ -26,7 +26,6 @@ class ApiTests(unittest.TestCase):
 
     def test_02_add_activities(self):
         """Add activity. Test fails because API doesn't store newly added activities."""
-        print("POST - test_02_add_activities")
 
         base_url = self.BASE_URL
 
@@ -52,7 +51,9 @@ class ApiTests(unittest.TestCase):
         self.assertNotEqual(data, last_act)
 
     def test_03_titles_of_first_five_activities(self):
-        print('GET - test_03_titles_of_first_five_activities')
+        """Assert titles of first five activities contain correct title (word
+        'Activity'), generated in the previous test."""
+
         base_url = self.BASE_URL
         r = requests.get(base_url + '/api/Activities', timeout=(10, 10))
 
@@ -66,10 +67,9 @@ class ApiTests(unittest.TestCase):
                 activity['Title'] in ['Activity 1', 'Activity 2', 'Activity 3',
                                       'Activity 4', 'Activity 5'])
 
-    def test_02_timestamp_in_ascending_order(self):
+    def test_04_timestamp_in_ascending_order(self):
         """Take timestamps of first five activities. Compare times between two requests
         one second apart."""
-        print("GET - test_02_timestamp_in_ascending_order")
 
         base_url = self.BASE_URL
         r1 = requests.get(base_url + '/api/Activities/1', timeout=(10, 10))
@@ -84,9 +84,8 @@ class ApiTests(unittest.TestCase):
 
         self.assertLess(result1['DueDate'], result2['DueDate'])
 
-    def test_03_confirm_activity_values(self):
+    def test_05_confirm_activity_values(self):
         """Validate different properties in an activity."""
-        print("GET - test_03_confirm_activity_values")
 
         base_url = self.BASE_URL
         r = requests.get(base_url + '/api/Activities/1', timeout=(10, 10))
@@ -97,8 +96,9 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(result['Title'], 'Activity 1')
         self.assertFalse(result['Completed'])
 
-    def tearDown(self):
-        print('----------------------------------------------------')
+    def shortDescription(self):
+        """Utility function to disable displaying docstring in verbose output."""
+        return None
 
 
 if __name__ == '__main__':
