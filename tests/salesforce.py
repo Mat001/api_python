@@ -41,8 +41,8 @@ import json
 class Salesforce(unittest.TestCase):
 
     def setUp(self):
-        client_secret = 'to_be_passed'
-        password = 'to_be_passed'
+        client_secret = '2074911939472552033'
+        password = 'hellosalesf6666RnCKaf9p4xbAryuBdXrJvmjl'
 
         credentials = {
             'grant_type': 'password',
