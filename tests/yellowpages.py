@@ -3,7 +3,7 @@ import time
 import unittest
 
 
-class Cinemark(unittest.TestCase):
+class Yellowpages(unittest.TestCase):
 
     def setUp(self):
 
